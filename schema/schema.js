@@ -1,6 +1,7 @@
 const graphql = require("graphql");
+const _ = require("lodash");
 
-const { GraphQLObjectType, GraphQLString, GraphQLInt } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql;
 
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -11,12 +12,25 @@ const UserType = new GraphQLObjectType({
   },
 });
 
+// since we don't have a DB we are using just mock data here
+const users = [
+  { id: "23", firstName: "Bill", age: 20 },
+  { id: "43", firstName: "Samantha", age: 21 },
+];
+
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
     user: {
       type: UserType,
       args: { id: { type: GraphQLString } },
+      resolve(parentValue, args) {
+        return _.find(users, { id: args.id });
+      },
     },
   },
+});
+
+module.exports = new GraphQLSchema({
+  query: RootQuery,
 });
